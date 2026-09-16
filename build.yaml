@@ -1,0 +1,13 @@
+targets:
+  $default:
+    builders:
+      core_flutter|layout_registry_builder:
+        enabled: true
+
+builders:
+  layout_registry_builder:
+    import: "package:core_flutter/builder/layout_builder.dart"
+    builder_factories: ["layoutRegistryBuilder"]
+    build_extensions: {"$lib$": ["router/layout_registry.g.dart"]}
+    auto_apply: root_package
+    build_to: source
