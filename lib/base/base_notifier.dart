@@ -16,8 +16,10 @@ mixin BaseNotifier<T> {
   AsyncValue<T> get state;
   set state(AsyncValue<T> value);
 
-
-  bool _isScreenStateDisposed = false;
+  void setScreenLoading() {
+    // ignore: invalid_use_of_internal_member
+    state = AsyncLoading<T>().copyWithPrevious(state);
+  }
   bool _isLoadMore            = false;
   bool _isMoreEnable          = true;
   bool withScrollController   = false;
@@ -45,21 +47,22 @@ mixin BaseNotifier<T> {
 
 
 
-  Future<Result<R>> executeWithAutomaticConnectionRecovery<R>(
-      Future<Result<R>> Function() apiCall,
+  Future<R> executeWithAutomaticConnectionRecovery<R>(
+      Future<R> Function() apiCall,
       ) async {
     while (true) {
-      final response = await apiCall();
-      if (response case Failure<R>(
-      code: final code,
-      ) when code == Result.isNotConnect) {
-        final errorMessage = coreMessages.networkDisconnected;
-        _ref.read(connectivityMessageProvider.notifier).setError(errorMessage);
-        await _waitForConnection();
-        _ref.read(connectivityMessageProvider.notifier).setError(null);
-        continue;
+      try {
+        return await apiCall();
+      } on Failure catch (e) {
+        if (e.code == Failure.isNotConnect) {
+          final errorMessage = coreMessages.networkDisconnected;
+          _ref.read(connectivityMessageProvider.notifier).setError(errorMessage);
+          await _waitForConnection();
+          _ref.read(connectivityMessageProvider.notifier).setError(null);
+          continue;
+        }
+        rethrow;
       }
-      return response;
     }
   }
 
@@ -150,7 +153,6 @@ mixin BaseNotifier<T> {
   void onDispose() {
     coreLog("CLOSE $runtimeType");
     if (withScrollController) scrollController.dispose();
-    _isScreenStateDisposed = true;
   }
 
   void onChangeLocale(Locale locale) {

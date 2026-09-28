@@ -23,42 +23,42 @@ mixin NetworkServiceErrorHandler {
     return _EmergencyMessages();
   }
 
-  Future<Result<T>> handleRequest<T>(
+  Future<T> handleRequest<T>(
       Future<Response> Function() request, [
       T Function(dynamic)? fromJson,
       ]) async {
     try {
       final response = await request();
-      return _handleResponse(response, fromJson);
+      return await _handleResponse(response, fromJson);
     } on DioException catch (e) {
       if (e.error is SessionExpiredException) throw e.error!;
-      return switch (e.type) {
+      throw switch (e.type) {
         DioExceptionType.connectionError => Failure(
-          Result.isNotConnect,
+          Failure.isNotConnect,
           _messages.networkDisconnected,
         ),
         _ => Failure(
-          e.response?.statusCode ?? Result.isDueServer,
+          e.response?.statusCode ?? Failure.isDueServer,
           _messages.noServerResponse,
         ),
       };
     } on TimeoutException {
-      return Failure(Result.isTimeOut, _messages.networkTimeout);
+      throw Failure(Failure.isTimeOut, _messages.networkTimeout);
     } catch (e, stackTrace) {
       if (e is SessionExpiredException) rethrow;
       coreLog(e.toString(), stackTrace: stackTrace, error: e, name: K.nameNetwork);
-      return Failure(Result.isError, _messages.serverBusy);
+      throw Failure(Failure.isError, _messages.serverBusy);
     }
   }
 
-  Result<T> _handleResponse<T>(
+  T _handleResponse<T>(
       Response response,
       T Function(dynamic)? fromJson,
       ) => switch (response.statusCode) {
-    200 when fromJson != null => Success(fromJson(response.data)),
-    200 => Success(response.data as T),
-    _   => Failure(
-      response.statusCode ?? Result.isHttp,
+    200 when fromJson != null => fromJson(response.data),
+    200 => response.data as T,
+    _   => throw Failure(
+      response.statusCode ?? Failure.isHttp,
       _messages.serverError,
     ),
   };

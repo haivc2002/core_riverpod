@@ -1,7 +1,7 @@
 import 'package:core_riverpod/network/network_exception.dart';
 
 abstract class NetworkServiceImplement {
-  Future<Result<T>> get<T>({
+  Future<T> get<T>({
     String endpoint = "",
     Map<String, dynamic>? query,
     T Function(dynamic)? fromJson,
@@ -10,7 +10,7 @@ abstract class NetworkServiceImplement {
     throw UnimplementedError('get method not implemented');
   }
 
-  Future<Result<T>> post<T>({
+  Future<T> post<T>({
     String endpoint = "",
     Object? data,
     T Function(dynamic)? fromJson,
@@ -19,7 +19,7 @@ abstract class NetworkServiceImplement {
     throw UnimplementedError('post method not implemented');
   }
 
-  Future<Result<T>> put<T>({
+  Future<T> put<T>({
     String endpoint = "",
     Object? data,
     T Function(dynamic)? fromJson,
@@ -28,7 +28,7 @@ abstract class NetworkServiceImplement {
     throw UnimplementedError('put method not implemented');
   }
 
-  Future<Result<T>> patch<T>({
+  Future<T> patch<T>({
     String endpoint = "",
     Object? data,
     T Function(dynamic)? fromJson,
@@ -37,7 +37,7 @@ abstract class NetworkServiceImplement {
     throw UnimplementedError('patch method not implemented');
   }
 
-  Future<Result<T>> delete<T>({
+  Future<T> delete<T>({
     String endpoint = "",
     Map<String, dynamic>? query,
     Object? data,

@@ -3,7 +3,6 @@ import 'package:core_riverpod/common/k.dart';
 import 'package:core_riverpod/network/network_auth_config.dart';
 import 'package:core_riverpod/network/network_auth_handle.dart';
 import 'package:core_riverpod/network/network_dev_logger.dart';
-import 'package:core_riverpod/network/network_exception.dart';
 import 'package:core_riverpod/network/network_service_error_handler.dart';
 import 'package:core_riverpod/network/network_service_implement.dart';
 import 'package:dio/dio.dart';
@@ -53,7 +52,7 @@ class NetworkService with NetworkServiceErrorHandler implements NetworkServiceIm
   }
 
   @override
-  Future<Result<T>> get<T>({
+  Future<T> get<T>({
     String endpoint = "",
     Map<String, dynamic>? query,
     T Function(dynamic)? fromJson,
@@ -69,7 +68,7 @@ class NetworkService with NetworkServiceErrorHandler implements NetworkServiceIm
   }
 
   @override
-  Future<Result<T>> post<T>({
+  Future<T> post<T>({
     String endpoint = "",
     Object? data,
     T Function(dynamic)? fromJson,
@@ -85,7 +84,7 @@ class NetworkService with NetworkServiceErrorHandler implements NetworkServiceIm
   }
 
   @override
-  Future<Result<T>> put<T>({
+  Future<T> put<T>({
     String endpoint = "",
     Object? data,
     T Function(dynamic)? fromJson,
@@ -101,7 +100,7 @@ class NetworkService with NetworkServiceErrorHandler implements NetworkServiceIm
   }
 
   @override
-  Future<Result<T>> patch<T>({
+  Future<T> patch<T>({
     String endpoint = "",
     Object? data,
     T Function(dynamic)? fromJson,
@@ -117,7 +116,7 @@ class NetworkService with NetworkServiceErrorHandler implements NetworkServiceIm
   }
 
   @override
-  Future<Result<T>> delete<T>({
+  Future<T> delete<T>({
     String endpoint = "",
     Map<String, dynamic>? query,
     Object? data,
@@ -134,7 +133,7 @@ class NetworkService with NetworkServiceErrorHandler implements NetworkServiceIm
     );
   }
 
-  Future<Result<T>> _request<T>({
+  Future<T> _request<T>({
     String endpoint = "",
     required String method,
     Object? data,
