@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'package:core_flutter/common/k.dart';
-import 'package:core_flutter/network/network_auth_config.dart';
-import 'package:core_flutter/network/network_auth_handle.dart';
-import 'package:core_flutter/network/network_dev_logger.dart';
-import 'package:core_flutter/network/network_exception.dart';
-import 'package:core_flutter/network/network_service_error_handler.dart';
-import 'package:core_flutter/network/network_service_implement.dart';
+import 'package:core_riverpod/common/k.dart';
+import 'package:core_riverpod/network/network_auth_config.dart';
+import 'package:core_riverpod/network/network_auth_handle.dart';
+import 'package:core_riverpod/network/network_dev_logger.dart';
+import 'package:core_riverpod/network/network_exception.dart';
+import 'package:core_riverpod/network/network_service_error_handler.dart';
+import 'package:core_riverpod/network/network_service_implement.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 

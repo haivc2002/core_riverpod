@@ -1,4 +1,4 @@
-import 'package:core_flutter/common/k.dart';
+import 'package:core_riverpod/common/k.dart';
 import 'package:flutter/material.dart';
 
 class GlobalCoreMessagesLocalizations extends LocalizationsDelegate<CoreMessages> {
@@ -28,21 +28,26 @@ class GlobalCoreMessagesLocalizations extends LocalizationsDelegate<CoreMessages
   bool shouldReload(covariant LocalizationsDelegate<CoreMessages> old) => false;
 }
 
-abstract class CoreMessages {
+abstract class NetworkExceptionMessage {
+  String get networkDisconnected;
+  String get networkTimeout;
+  String get unknownError;
+  String get noServerResponse;
+  String get serverBusy;
+  String get serverError;
+}
+
+abstract class SystemCoreMessage {
+  String get close;
+  String get success;
+  String get notification;
+  String get failure;
+}
+
+abstract class CoreMessages implements NetworkExceptionMessage, SystemCoreMessage {
   static CoreMessages of(BuildContext context) {
     return Localizations.of<CoreMessages>(context, CoreMessages) ?? _EnMessages();
   }
-
-  String get networkDisconnected => '';
-  String get networkTimeout => '';
-  String get unknownError => '';
-  String get noServerResponse => '';
-  String get serverBusy => '';
-  String get serverError => '';
-  String get close => '';
-  String get success => '';
-  String get notification => '';
-  String get failure => '';
 }
 
 class _ViMessages implements CoreMessages {

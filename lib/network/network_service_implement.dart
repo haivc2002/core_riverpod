@@ -1,4 +1,4 @@
-import 'package:core_flutter/network/network_exception.dart';
+import 'package:core_riverpod/network/network_exception.dart';
 
 abstract class NetworkServiceImplement {
   Future<Result<T>> get<T>({

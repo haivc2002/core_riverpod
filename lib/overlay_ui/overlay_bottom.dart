@@ -1,6 +1,6 @@
-import 'package:core_flutter/common/color_opacity.dart';
-import 'package:core_flutter/localization/core_messages.dart';
-import 'package:core_flutter/overlay_ui/overlay_dialog.dart';
+import 'package:core_riverpod/common/color_opacity.dart';
+import 'package:core_riverpod/localization/core_messages.dart';
+import 'package:core_riverpod/overlay_ui/overlay_dialog.dart';
 import 'package:flutter/material.dart';
 
 class OverlayBottom extends StatelessWidget {

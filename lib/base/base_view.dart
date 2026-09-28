@@ -1,34 +1,31 @@
-import "package:core_flutter/debug/debug_notifier/debug_memory_notifier.dart";
-import "package:core_flutter/debug/debug_notifier/debug_panel_notifier.dart";
-import "package:core_flutter/localization/core_messages.dart";
-import "package:core_flutter/network/network_exception.dart";
-import "package:core_flutter/widget/widget_wait.dart";
+import "package:core_riverpod/debug/debug_notifier/debug_memory_notifier.dart";
+import "package:core_riverpod/debug/debug_notifier/debug_panel_notifier.dart";
+import "package:core_riverpod/localization/core_messages.dart";
+import "package:core_riverpod/network/network_exception.dart";
+import "package:core_riverpod/widget/widget_wait.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:hooks_riverpod/hooks_riverpod.dart";
 import "package:flutter_hooks/flutter_hooks.dart";
-import "package:core_flutter/base/base_notifier.dart";
-import "package:core_flutter/connectivity/connectivity_provider.dart";
-import "package:core_flutter/common/global_entity.dart";
-import "package:core_flutter/debug/debug_core.dart";
+import "package:core_riverpod/base/base_notifier.dart";
+import "package:core_riverpod/connectivity/connectivity_provider.dart";
+import "package:core_riverpod/common/global_entity.dart";
+import "package:core_riverpod/debug/debug_core.dart";
 
-abstract class BaseView<N extends BaseNotifier<S>, S> extends HookConsumerWidget {
-  BaseView({super.key});
-  
-  late BuildContext _context;
-  late WidgetRef    _ref;
-  late S            _state;
+abstract class BaseViewState<
+  W extends StatefulHookConsumerWidget,
+  N extends BaseNotifier<S>,
+  S
+> extends ConsumerState<W> {
+  late AsyncValue<S> _asyncState;
   late N            _notifier;
 
-  bool          get isMounted                   => _context.mounted;
-  BuildContext  get context                     => _context;
-  WidgetRef     get ref                         => _ref;
-  S             get state                       => _state;
+  S             get state                       => _asyncState.requireValue;
   N             get viewModel                   => _notifier;
   bool          get enableListenBuilderLoading  => true;
   bool          get enableListenBuilderError    => true;
 
-  S watchState(WidgetRef ref);
+  AsyncValue<S> watchState(WidgetRef ref);
 
   N readNotifier(WidgetRef ref);
 
@@ -52,7 +49,7 @@ abstract class BaseView<N extends BaseNotifier<S>, S> extends HookConsumerWidget
 
   void _messageErrorNetwork(String? errorMsg) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_context.mounted) return;
+      if (!mounted) return;
       final messenger = ScaffoldMessenger.maybeOf(context);
       if (messenger == null) return;
       messenger.clearSnackBars();
@@ -74,15 +71,12 @@ abstract class BaseView<N extends BaseNotifier<S>, S> extends HookConsumerWidget
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     if (kDebugMode) {
       ref.read(debugMemoryProvider);
       DebugMemoryNotifier.activeScreenName = runtimeType.toString();
-      DebugMemoryNotifier.activeRouteId = ModalRoute.of(context)?.hashCode ?? 0;
     }
-    _context  = context;
-    _ref      = ref;
-    _state    = watchState(ref);
+    _asyncState = watchState(ref);
     _notifier = readNotifier(ref);
 
     int routeId = 0;
@@ -109,24 +103,24 @@ abstract class BaseView<N extends BaseNotifier<S>, S> extends HookConsumerWidget
       _messageErrorNetwork(errorMsg);
     });
 
-    final screenState = useValueListenable(_notifier.stateNotifier);
-    final Widget originalView = zBuilder(); 
+    final Widget originalView = _asyncState.hasValue ? zBuilder() : const SizedBox(); 
 
-    final Widget view = switch ((screenState, originalView)) {
-      (ScreenStateEnum.LOADING, final Scaffold s) when enableListenBuilderLoading =>
-          _replaceScaffoldBody(s, Center(child: buildLoadingView())),
-          
-      (ScreenStateEnum.ERROR, final Scaffold s) when enableListenBuilderError =>
-          _replaceScaffoldBody(s, Center(child: buildErrorView(viewModel.viewObjectFailure))),
-          
-      (ScreenStateEnum.LOADING, _) when enableListenBuilderLoading =>
-          Center(child: buildLoadingView()),
-          
-      (ScreenStateEnum.ERROR, _) when enableListenBuilderError =>
-          Center(child: buildErrorView(viewModel.viewObjectFailure)),
-          
-      _ => originalView,
-    };
+    final Widget view = _asyncState.when(
+      skipLoadingOnRefresh: false,
+      skipLoadingOnReload: false,
+      data: (data) => originalView,
+      loading: () {
+        if (!enableListenBuilderLoading) return originalView;
+        if (originalView is Scaffold) return _replaceScaffoldBody(originalView, Center(child: buildLoadingView()));
+        return Center(child: buildLoadingView());
+      },
+      error: (error, stack) {
+        if (!enableListenBuilderError) return originalView;
+        final failure = error is Failure ? error : Failure(0, error.toString());
+        if (originalView is Scaffold) return _replaceScaffoldBody(originalView, Center(child: buildErrorView(failure)));
+        return Center(child: buildErrorView(failure));
+      },
+    );
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

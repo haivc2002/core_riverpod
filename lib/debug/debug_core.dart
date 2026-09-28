@@ -1,13 +1,13 @@
-import 'package:core_flutter/common/k.dart';
-import 'package:core_flutter/core_riverpod.dart';
-import 'package:core_flutter/debug/debug_notifier/debug_memory_notifier.dart';
-import 'package:core_flutter/debug/debug_notifier/debug_network_notifier.dart';
-import 'package:core_flutter/debug/debug_notifier/debug_panel_notifier.dart';
-import 'package:core_flutter/debug/debug_tab/debug_memory_tab.dart';
-import 'package:core_flutter/debug/debug_tab/debug_network_tab.dart';
-import 'package:core_flutter/debug/debug_tab/debug_overview_tab.dart';
-import 'package:core_flutter/debug/debug_widget/debug_badges.dart';
-import 'package:core_flutter/debug/debug_widget/debug_chip.dart';
+import 'package:core_riverpod/common/k.dart';
+import 'package:core_riverpod/core_riverpod.dart';
+import 'package:core_riverpod/debug/debug_notifier/debug_memory_notifier.dart';
+import 'package:core_riverpod/debug/debug_notifier/debug_network_notifier.dart';
+import 'package:core_riverpod/debug/debug_notifier/debug_panel_notifier.dart';
+import 'package:core_riverpod/debug/debug_tab/debug_memory_tab.dart';
+import 'package:core_riverpod/debug/debug_tab/debug_network_tab.dart';
+import 'package:core_riverpod/debug/debug_tab/debug_overview_tab.dart';
+import 'package:core_riverpod/debug/debug_widget/debug_badges.dart';
+import 'package:core_riverpod/debug/debug_widget/debug_chip.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

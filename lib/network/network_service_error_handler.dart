@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'package:core_flutter/common/k.dart';
-import 'package:core_flutter/common/core_utils.dart';
-import 'package:core_flutter/network/network_exception.dart';
+import 'package:core_riverpod/common/k.dart';
+import 'package:core_riverpod/common/core_utils.dart';
+import 'package:core_riverpod/network/network_exception.dart';
 import 'package:dio/dio.dart';
 
-import 'package:core_flutter/localization/core_messages.dart';
+import 'package:core_riverpod/localization/core_messages.dart';
 
-class _EmergencyMessages extends CoreMessages {
+class _EmergencyMessages extends NetworkExceptionMessage {
   @override String get networkDisconnected  => 'No network connection';
   @override String get networkTimeout       => 'Connection timed out';
   @override String get unknownError         => 'An error occurred';
@@ -17,7 +17,7 @@ class _EmergencyMessages extends CoreMessages {
 
 mixin NetworkServiceErrorHandler {
 
-  CoreMessages get _messages {
+  NetworkExceptionMessage get _messages {
     final context = coreNavigatorKey.currentContext;
     if (context != null) return CoreMessages.of(context);
     return _EmergencyMessages();
@@ -39,7 +39,7 @@ mixin NetworkServiceErrorHandler {
         ),
         _ => Failure(
           e.response?.statusCode ?? Result.isDueServer,
-          e.response?.statusMessage ?? _messages.noServerResponse,
+          _messages.noServerResponse,
         ),
       };
     } on TimeoutException {

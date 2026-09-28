@@ -1,8 +1,8 @@
-import 'package:core_flutter/widget/widget_appbar.dart';
-import 'package:core_flutter/widget/widget_wait.dart';
+import 'package:core_riverpod/widget/widget_appbar.dart';
+import 'package:core_riverpod/widget/widget_wait.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/services.dart';
-import 'package:core_flutter/common/core_scroll_controller.dart';
+import 'package:core_riverpod/common/core_scroll_controller.dart';
 
 import 'dart:io';
 import 'dart:math';
@@ -10,6 +10,8 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final defPaddingListView = EdgeInsets.all(16);
 
@@ -19,7 +21,7 @@ enum RefreshType {
   ios
 }
 
-class WidgetListView extends StatelessWidget {
+class WidgetListView extends HookConsumerWidget {
   final ScrollController? controller;
   final ScrollPhysics? physics;
   final List<Widget>? children;
@@ -126,7 +128,7 @@ class WidgetListView extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ScrollPhysics effectivePhysics = physics ?? const BouncingScrollPhysics().applyTo(const AlwaysScrollableScrollPhysics());
     final EdgeInsetsGeometry defPadding = padding ?? defPaddingListView;
     final colorRefresh = refreshColor ?? Theme.of(context).progressIndicatorTheme.color ?? Theme.of(context).colorScheme.primary;
@@ -220,9 +222,9 @@ class WidgetListView extends StatelessWidget {
                     );
                   }
               ),
-              ValueListenableBuilder<double>(
-                valueListenable: WidgetAppbar.pullProgressNotifier,
-                builder: (context, rawOverscroll, _) {
+              HookBuilder(
+                builder: (context) {
+                  final rawOverscroll = ref.watch(pullProgressProvider);
                   final indicatorOffset = rawOverscroll * 0.7;
 
                   return Positioned(
@@ -263,8 +265,10 @@ class WidgetListView extends StatelessWidget {
           if (notification.metrics.pixels < 0) {
             overscroll = -notification.metrics.pixels;
           }
-          if (enablePullWidgetAppBar && WidgetAppbar.pullProgressNotifier.value != overscroll) {
-            WidgetAppbar.pullProgressNotifier.value = overscroll;
+          if (enablePullWidgetAppBar && ref.read(pullProgressProvider) != overscroll) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(pullProgressProvider.notifier).state = overscroll;
+            });
           }
         }
         return false;

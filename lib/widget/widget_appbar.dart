@@ -1,9 +1,16 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
-  static final ValueNotifier<double> pullProgressNotifier = ValueNotifier<double>(0);
+class _PullProgressNotifier extends Notifier<double> {
+  @override
+  double build() => 0.0;
+}
+final pullProgressProvider = NotifierProvider<_PullProgressNotifier, double>(_PullProgressNotifier.new);
+
+class WidgetAppbar extends HookConsumerWidget implements PreferredSizeWidget {
 
   final Color? backgroundColor;
   final Widget? leading;
@@ -27,7 +34,7 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final route = ModalRoute.of(context) as PageRoute?;
     final bool canPop = route?.canPop ?? false;
     final bool isAndroid = Theme.of(context).platform == TargetPlatform.android;
@@ -75,52 +82,48 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
     }
 
     final animation = route?.animation;
+    final pullProgress = ref.watch(pullProgressProvider);
 
-    return ValueListenableBuilder<double>(
-      valueListenable: pullProgressNotifier,
-      builder: (context, _, __) {
-        final extraHeight = coreAppBarListIntermediateOffset;
-        final currentToolbarHeight = toolbarHeight + extraHeight;
+    final extraHeight = pullProgress * 0.4;
+    final currentToolbarHeight = toolbarHeight + extraHeight;
 
-        Widget appBar;
-        if (animation == null) {
-          appBar = _buildAppBar(context, currentToolbarHeight, leadingWidget, titleWidget, actionWidgets);
-        } else {
-          appBar = AnimatedBuilder(
-            animation: animation,
-            builder: (context, child) {
-              double dx = 0;
-              if (animation.status == AnimationStatus.forward && animation.value < 1.0) {
-                final bool isGesture = route?.navigator?.userGestureInProgress ?? false;
-                double progress;
-                if (isGesture) {
-                  progress = animation.value;
-                } else if (isAndroid) {
-                  progress = Curves.easeInOutCubicEmphasized.transform(animation.value);
-                } else {
-                  progress = Curves.fastEaseInToSlowEaseOut.transform(animation.value);
-                }
-                final factor = isAndroid ? 0.25 : 1.0;
-                dx = -screenWidth * factor * (1.0 - progress);
-              }
-              return _buildAppBar(
-                context,
-                currentToolbarHeight,
-                leadingWidget != null ? Transform.translate(offset: Offset(dx, 0), child: leadingWidget) : null,
-                titleWidget,
-                actionWidgets?.map((a) => Transform.translate(offset: Offset(dx, 0), child: a)).toList(),
-              );
-            },
+    Widget appBar;
+    if (animation == null) {
+      appBar = _buildAppBar(context, currentToolbarHeight, leadingWidget, titleWidget, actionWidgets);
+    } else {
+      appBar = AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          double dx = 0;
+          if (animation.status == AnimationStatus.forward && animation.value < 1.0) {
+            final bool isGesture = route?.navigator?.userGestureInProgress ?? false;
+            double progress;
+            if (isGesture) {
+              progress = animation.value;
+            } else if (isAndroid) {
+              progress = Curves.easeInOutCubicEmphasized.transform(animation.value);
+            } else {
+              progress = Curves.fastEaseInToSlowEaseOut.transform(animation.value);
+            }
+            final factor = isAndroid ? 0.25 : 1.0;
+            dx = -screenWidth * factor * (1.0 - progress);
+          }
+          return _buildAppBar(
+            context,
+            currentToolbarHeight,
+            leadingWidget != null ? Transform.translate(offset: Offset(dx, 0), child: leadingWidget) : null,
+            titleWidget,
+            actionWidgets?.map((a) => Transform.translate(offset: Offset(dx, 0), child: a)).toList(),
           );
-        }
+        },
+      );
+    }
 
-        return OverflowBox(
-          alignment: Alignment.topCenter,
-          minHeight: 0.0,
-          maxHeight: double.infinity,
-          child: appBar,
-        );
-      },
+    return OverflowBox(
+      alignment: Alignment.topCenter,
+      minHeight: 0.0,
+      maxHeight: double.infinity,
+      child: appBar,
     );
   }
 
@@ -466,9 +469,8 @@ class _RenderClipTitle extends RenderProxyBox {
   }
 }
 
-double get coreAppBarListIntermediateOffset => WidgetAppbar.pullProgressNotifier.value * 0.4;
 
-class CoreAppBarListIntermediateSpace extends StatelessWidget {
+class CoreAppBarListIntermediateSpace extends HookConsumerWidget {
   final double scale;
   const CoreAppBarListIntermediateSpace({
     this.scale = 0,
@@ -476,30 +478,21 @@ class CoreAppBarListIntermediateSpace extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<double>(
-      valueListenable: WidgetAppbar.pullProgressNotifier,
-      builder: (context, overscroll, child) {
-        return SizedBox(height: overscroll * 0.4 * (1 + scale));
-      },
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overscroll = ref.watch(pullProgressProvider);
+    return SizedBox(height: overscroll * 0.4 * (1 + scale));
   }
 }
 
-class CoreAppBarListIntermediateTranslate extends StatelessWidget {
+class CoreAppBarListIntermediateTranslate extends HookConsumerWidget {
   final Widget child;
   const CoreAppBarListIntermediateTranslate({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<double>(
-      valueListenable: WidgetAppbar.pullProgressNotifier,
-      builder: (context, overscroll, childWidget) {
-        return Transform.translate(
-          offset: Offset(0, overscroll * 0.4),
-          child: childWidget,
-        );
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overscroll = ref.watch(pullProgressProvider);
+    return Transform.translate(
+      offset: Offset(0, overscroll * 0.4),
       child: child,
     );
   }

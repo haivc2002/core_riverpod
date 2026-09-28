@@ -1,6 +1,6 @@
-import 'package:core_flutter/core_riverpod.dart';
-import 'package:core_flutter/debug/debug_notifier/debug_memory_notifier.dart';
-import 'package:core_flutter/debug/debug_notifier/debug_network_notifier.dart';
+import 'package:core_riverpod/core_riverpod.dart';
+import 'package:core_riverpod/debug/debug_notifier/debug_memory_notifier.dart';
+import 'package:core_riverpod/debug/debug_notifier/debug_network_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -79,7 +79,7 @@ class DebugNotifier extends Notifier<DebugPosState> {
       ..removeWhere((e) => e.name == name && e.routeId == routeId);
     state = _copyWith(routeStack: newStack);
 
-    ref.read(debugMemoryProvider.notifier).checkRouteId(routeId);
+    ref.read(debugMemoryProvider.notifier).scheduleRetainCheck(name);
   }
 }
 

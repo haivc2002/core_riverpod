@@ -1,9 +1,9 @@
-import 'package:core_flutter/core_riverpod.dart';
+import 'package:core_riverpod/core_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:core_flutter/common/global_entity.dart';
-import 'package:core_flutter/common/k.dart';
-import 'package:core_flutter/debug/debug_widget/debug_frame.dart';
-import 'package:core_flutter/debug/debug_widget/debug_chip.dart';
+import 'package:core_riverpod/common/global_entity.dart';
+import 'package:core_riverpod/common/k.dart';
+import 'package:core_riverpod/debug/debug_widget/debug_frame.dart';
+import 'package:core_riverpod/debug/debug_widget/debug_chip.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 

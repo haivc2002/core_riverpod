@@ -35,8 +35,8 @@ class LayoutRegistryBuilder implements Builder {
     buffer.writeln("// GENERATED CODE - DO NOT MODIFY BY HAND");
     buffer.writeln();
     buffer.writeln("import 'package:flutter/material.dart';");
-    buffer.writeln("import 'package:core_flutter/core_riverpod.dart';");
-    buffer.writeln("import 'package:untitled/router/app_router.dart';");
+    buffer.writeln("import 'package:core_riverpod/core_riverpod.dart';");
+    buffer.writeln("import 'package:${buildStep.inputId.package}/router/app_router.dart';");
     for (var imp in imports) {
       buffer.writeln(imp);
     }

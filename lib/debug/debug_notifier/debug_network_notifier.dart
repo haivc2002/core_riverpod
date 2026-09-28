@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:core_flutter/core_riverpod.dart';
-import 'package:core_flutter/network/network_dev_logger.dart';
+import 'package:core_riverpod/core_riverpod.dart';
+import 'package:core_riverpod/network/network_dev_logger.dart';
 
 class DebugNetworkNotifier extends Notifier<List<NetworkErrorInfo>> {
   static DebugNetworkNotifier? instance;

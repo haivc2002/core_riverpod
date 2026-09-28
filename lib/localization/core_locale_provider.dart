@@ -1,4 +1,4 @@
-import 'package:core_flutter/common/k.dart';
+import 'package:core_riverpod/common/k.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

@@ -1,14 +1,14 @@
 import 'dart:developer' as dev;
-import 'package:core_flutter/common/k.dart';
-import 'package:core_flutter/overlay_ui/overlay_bottom.dart';
-import 'package:core_flutter/overlay_ui/overlay_dialog.dart';
-import 'package:core_flutter/overlay_ui/overlay_snack_bar.dart';
-import 'package:core_flutter/widget/widget_wait.dart';
+import 'package:core_riverpod/common/k.dart';
+import 'package:core_riverpod/overlay_ui/overlay_bottom.dart';
+import 'package:core_riverpod/overlay_ui/overlay_dialog.dart';
+import 'package:core_riverpod/overlay_ui/overlay_snack_bar.dart';
+import 'package:core_riverpod/widget/widget_wait.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:core_flutter/localization/core_messages.dart';
+import 'package:core_riverpod/localization/core_messages.dart';
 
 void coreLog(String message,
     {String name = K.nameCore,

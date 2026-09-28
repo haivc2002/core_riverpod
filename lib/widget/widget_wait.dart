@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:core_flutter/common/color_opacity.dart';
+import 'package:core_riverpod/common/color_opacity.dart';
 import 'package:flutter/material.dart';
 
 class WidgetWait extends StatefulWidget {

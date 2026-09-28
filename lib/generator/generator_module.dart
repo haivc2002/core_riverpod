@@ -38,7 +38,7 @@ void main(List<String> args) {
   if (!routerFile.existsSync()) {
     routerFile.writeAsStringSync('''
 import 'package:flutter/material.dart';
-import 'package:core_flutter/core_riverpod.dart';
+import 'package:core_riverpod/core_riverpod.dart';
 import 'package:$packageName/feature/$moduleName/presentation/${moduleName}_view.dart';
 import 'package:$packageName/router/app_router.dart';
 
@@ -71,7 +71,7 @@ final ${varName}Route = GoRoute(
 ///
 /// ⚙️ How to automatically update this file:
 ///   Run the following command to generate `.freezed.dart`:
-///     dart run build_runner build -d --build-filter="lib/feature/$moduleName/presentation/${moduleName}_state.dart"
+///      dart run build_runner build --build-filter="lib/feature/$moduleName/presentation/${moduleName}_state.freezed.dart"
 ///
 /// This script will automatically generate or update:
 ///   • `copyWith`, `toString`, `==`, `hashCode` methods using `Freezed`
@@ -82,7 +82,7 @@ final ${varName}Route = GoRoute(
 /// ------------------------------------------------------------
 library;
 
-import 'package:core_flutter/core_riverpod.dart';
+import 'package:core_riverpod/core_riverpod.dart';
 
 part '${moduleName}_state.freezed.dart';
 
@@ -99,7 +99,7 @@ abstract class ${className}State with _\$${className}State {
   final notifierFile = File('${presentationDir.path}/${moduleName}_notifier.dart');
   if (!notifierFile.existsSync()) {
     notifierFile.writeAsStringSync('''
-import 'package:core_flutter/core_riverpod.dart';
+import 'package:core_riverpod/core_riverpod.dart';
 import 'package:$packageName/feature/$moduleName/presentation/${moduleName}_state.dart';
 
 part '${moduleName}_notifier.g.dart';
@@ -108,9 +108,9 @@ part '${moduleName}_notifier.g.dart';
 class ${className}Notifier extends _\$${className}Notifier with BaseNotifier<${className}State> {
 
   @override
-  ${className}State build(Object? args) {
+  FutureOr<${className}State> build(Object? args) {
     onInitStateBaseNotifier();
-    ref.onDispose(onDisposeBaseNotifier);
+    ref.onDispose(onDispose);
     return const ${className}State();
   }
 }
@@ -121,20 +121,25 @@ class ${className}Notifier extends _\$${className}Notifier with BaseNotifier<${c
   final viewFile = File('${presentationDir.path}/${moduleName}_view.dart');
   if (!viewFile.existsSync()) {
     viewFile.writeAsStringSync('''
-import 'package:core_flutter/core_riverpod.dart';
+import 'package:core_riverpod/core_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:$packageName/feature/$moduleName/presentation/${moduleName}_notifier.dart';
 import 'package:$packageName/feature/$moduleName/presentation/${moduleName}_state.dart';
 
-class ${className}View extends BaseView<${className}Notifier, ${className}State> {
+class ${className}View extends StatefulHookConsumerWidget {
   final Object? args;
-  ${className}View({this.args, super.key});
+  const ${className}View({this.args, super.key});
 
   @override
-  ${className}Notifier readNotifier(WidgetRef ref) => ref.read(${varName}Provider(args).notifier);
+  ConsumerState<${className}View> createState() => _${className}ViewState();
+}
+
+class _${className}ViewState extends BaseViewState<${className}View, ${className}Notifier, ${className}State> {
+  @override
+  ${className}Notifier readNotifier(WidgetRef ref) => ref.read(${varName}Provider(widget.args).notifier);
 
   @override
-  ${className}State watchState(WidgetRef ref) => ref.watch(${varName}Provider(args));
+  AsyncValue<${className}State> watchState(WidgetRef ref) => ref.watch(${varName}Provider(widget.args));
 
   @override
   Widget zBuilder() {
@@ -155,7 +160,7 @@ class ${className}View extends BaseView<${className}Notifier, ${className}State>
     // Nếu chưa có app_router.dart (module đầu tiên)
     appRouterFile.parent.createSync(recursive: true);
     appRouterFile.writeAsStringSync('''
-import 'package:core_flutter/core_riverpod.dart';
+import 'package:core_riverpod/core_riverpod.dart';
 import 'package:$packageName/feature/$moduleName/router/${moduleName}_router.dart';
 
 class AppRouter {
@@ -193,13 +198,12 @@ class AppRouter {
     print('✅ Đã tự động cập nhật route vào: ${appRouterFile.path}');
   }
 
-  print('⏳ Đang chạy build_runner cho $moduleName (chỉ build thư mục này)...');
+  print('⏳ Đang chạy build_runner (nó sẽ tự động cache và chỉ build module mới)...');
   final result = Process.runSync('dart', [
     'run',
     'build_runner',
     'build',
-    '-d',
-    '--build-filter=lib/feature/$moduleName/presentation/*.dart'
+    '-d'
   ]);
   print(result.stdout);
   if (result.stderr.toString().isNotEmpty) {

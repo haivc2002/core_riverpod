@@ -1,11 +1,11 @@
-import 'package:core_flutter/common/core_utils.dart';
-import 'package:core_flutter/common/k.dart';
-import 'package:core_flutter/network/network_auth_config.dart';
-import 'package:core_flutter/network/network_dev_logger.dart';
+import 'package:core_riverpod/common/core_utils.dart';
+import 'package:core_riverpod/common/k.dart';
+import 'package:core_riverpod/network/network_auth_config.dart';
+import 'package:core_riverpod/network/network_dev_logger.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:core_flutter/network/network_exception.dart';
+import 'package:core_riverpod/network/network_exception.dart';
 
 class NetworkAuthHandle extends QueuedInterceptor {
   final Dio _dio;

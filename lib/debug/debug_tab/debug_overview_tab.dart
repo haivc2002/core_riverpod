@@ -1,23 +1,26 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:core_flutter/debug/debug_notifier/debug_memory_notifier.dart';
-import 'package:core_flutter/debug/debug_notifier/debug_panel_notifier.dart';
-import 'package:core_flutter/debug/debug_widget/debug_chip.dart';
+import 'package:core_riverpod/debug/debug_notifier/debug_memory_notifier.dart';
+import 'package:core_riverpod/debug/debug_notifier/debug_panel_notifier.dart';
+import 'package:core_riverpod/debug/debug_widget/debug_chip.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_info_plus/system_info_plus.dart';
-import 'package:core_flutter/core_riverpod.dart';
-import 'package:core_flutter/debug/debug_widget/debug_frame.dart';
-import 'package:core_flutter/common/k.dart';
+import 'package:core_riverpod/core_riverpod.dart';
+import 'package:core_riverpod/debug/debug_widget/debug_frame.dart';
+import 'package:core_riverpod/common/k.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 class DebugRamHistoryNotifier extends Notifier<List<double>> {
+  double peakRamMB = 0.0;
+
   @override
   List<double> build() => [];
 
   void addPoint(double mb) {
     if (!kDebugMode) return;
+    if (mb > peakRamMB) peakRamMB = mb;
     final list = List<double>.from(state);
     if (list.length >= 30) list.removeAt(0);
     list.add(mb);
@@ -149,6 +152,7 @@ class DebugOverviewTab extends HookConsumerWidget {
                 child: CustomPaint(
                   painter: RamChartPainter(
                     history: ramHistory,
+                    peakRamMB: ramHistoryNotifier.peakRamMB,
                     maxRamMB: deviceSnapshot.data?.rawRamMB ?? 4096.0,
                   ),
                 ),
@@ -299,20 +303,16 @@ class DebugOverviewTab extends HookConsumerWidget {
 
 class RamChartPainter extends CustomPainter {
   final List<double> history;
+  final double peakRamMB;
   final double maxRamMB;
 
-  RamChartPainter({required this.history, required this.maxRamMB});
+  RamChartPainter({required this.history, required this.peakRamMB, required this.maxRamMB});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (history.isEmpty || maxRamMB <= 0) return;
 
-    double maxValInHistory = 0.0;
-    for (var val in history) {
-      if (val > maxValInHistory) maxValInHistory = val;
-    }
-
-    double chartMaxMB = (maxValInHistory * 1.25);
+    double chartMaxMB = (peakRamMB * 1.25);
     if (chartMaxMB < 256) chartMaxMB = 256;
     if (chartMaxMB > maxRamMB) chartMaxMB = maxRamMB;
 
