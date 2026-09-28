@@ -48,13 +48,23 @@ mixin BaseNotifier<T> {
 
 
   Future<R> executeWithAutomaticConnectionRecovery<R>(
-      Future<R> Function() apiCall,
-      ) async {
+      Future<R> Function() apiCall, {
+      int maxRetries = 3,
+  }) async {
+    int retryCount = 0;
     while (true) {
+      if (_isScreenStateDisposed) throw Exception("Thao tác bị hủy vì màn hình đã đóng.");
+      
       try {
         return await apiCall();
       } on Failure catch (e) {
         if (e.code == Failure.isNotConnect) {
+          if (retryCount >= maxRetries) {
+            _ref.read(connectivityMessageProvider.notifier).setError(null);
+            rethrow;
+          }
+          retryCount++;
+          
           final errorMessage = coreMessages.networkDisconnected;
           _ref.read(connectivityMessageProvider.notifier).setError(errorMessage);
           await _waitForConnection();

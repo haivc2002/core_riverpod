@@ -103,59 +103,31 @@ abstract class BaseViewState<
       _messageErrorNetwork(errorMsg);
     });
 
-    final Widget originalView = _asyncState.hasValue ? zBuilder() : const SizedBox(); 
-
-    final Widget view = _asyncState.when(
-      skipLoadingOnRefresh: false,
-      skipLoadingOnReload: false,
-      data: (data) => originalView,
-      loading: () {
-        if (!enableListenBuilderLoading) return originalView;
-        if (originalView is Scaffold) return _replaceScaffoldBody(originalView, Center(child: buildLoadingView()));
-        return Center(child: buildLoadingView());
-      },
-      error: (error, stack) {
-        if (!enableListenBuilderError) return originalView;
-        final failure = error is Failure ? error : Failure(0, error.toString());
-        if (originalView is Scaffold) return _replaceScaffoldBody(originalView, Center(child: buildErrorView(failure)));
-        return Center(child: buildErrorView(failure));
-      },
-    );
-
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       behavior: HitTestBehavior.opaque,
-      child: view,
+      child: zBuilder(),
     );
   }
 
-  Scaffold _replaceScaffoldBody(Scaffold original, Widget newBody) {
-    return Scaffold(
-      key: original.key,
-      appBar: original.appBar,
-      body: newBody,
-      floatingActionButton: original.floatingActionButton,
-      floatingActionButtonLocation: original.floatingActionButtonLocation,
-      floatingActionButtonAnimator: original.floatingActionButtonAnimator,
-      persistentFooterButtons: original.persistentFooterButtons,
-      persistentFooterAlignment: original.persistentFooterAlignment,
-      drawer: original.drawer,
-      onDrawerChanged: original.onDrawerChanged,
-      endDrawer: original.endDrawer,
-      onEndDrawerChanged: original.onEndDrawerChanged,
-      bottomNavigationBar: original.bottomNavigationBar,
-      bottomSheet: original.bottomSheet,
-      backgroundColor: original.backgroundColor,
-      resizeToAvoidBottomInset: original.resizeToAvoidBottomInset,
-      primary: original.primary,
-      drawerDragStartBehavior: original.drawerDragStartBehavior,
-      extendBody: original.extendBody,
-      extendBodyBehindAppBar: original.extendBodyBehindAppBar,
-      drawerScrimColor: original.drawerScrimColor,
-      drawerEdgeDragWidth: original.drawerEdgeDragWidth,
-      drawerEnableOpenDragGesture: original.drawerEnableOpenDragGesture,
-      endDrawerEnableOpenDragGesture: original.endDrawerEnableOpenDragGesture,
-      restorationId: original.restorationId,
+  Widget stateBuilder(Widget Function() dataBuilder) {
+    if (!_asyncState.hasValue && _asyncState.isLoading) {
+      return Center(child: buildLoadingView());
+    }
+
+    return _asyncState.when(
+      skipLoadingOnRefresh: false,
+      skipLoadingOnReload: false,
+      data: (data) => dataBuilder(),
+      loading: () {
+        if (!enableListenBuilderLoading) return dataBuilder();
+        return Center(child: buildLoadingView());
+      },
+      error: (error, stack) {
+        if (!enableListenBuilderError) return dataBuilder();
+        final failure = error is Failure ? error : Failure(0, error.toString());
+        return Center(child: buildErrorView(failure));
+      },
     );
   }
 }
