@@ -20,6 +20,7 @@ mixin BaseNotifier<T> {
     // ignore: invalid_use_of_internal_member
     state = AsyncLoading<T>().copyWithPrevious(state);
   }
+  bool _isScreenStateDisposed = false;
   bool _isLoadMore            = false;
   bool _isMoreEnable          = true;
   bool withScrollController   = false;
@@ -163,6 +164,7 @@ mixin BaseNotifier<T> {
   void onDispose() {
     coreLog("CLOSE $runtimeType");
     if (withScrollController) scrollController.dispose();
+    _isScreenStateDisposed = true;
   }
 
   void onChangeLocale(Locale locale) {
