@@ -16,13 +16,23 @@ filter:
 # clean:
 # 	dart run build_runner clean
 
-# Hack để nhận tham số trực tiếp (vd: make gen auth)
+# Hack để nhận tham số trực tiếp (vd: make gen auth, make entity user)
 ifeq (gen,$(firstword $(MAKECMDGOALS)))
   GEN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(GEN_ARGS):;@:)
 endif
 
+ifeq (entity,$(firstword $(MAKECMDGOALS)))
+  ENTITY_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(ENTITY_ARGS):;@:)
+endif
+
 # Lệnh tạo module mới. Cách dùng: make gen tên_module
 # Ví dụ: make gen login
 gen:
-	dart run core_flutter/lib/generator/generator_module.dart $(GEN_ARGS)
+	dart run ../core_riverpod/lib/generator/generator_module.dart $(GEN_ARGS)
+
+# Lệnh gen entity. Cách dùng: make entity đường_dẫn_file
+# Hỗ trợ tự động tìm file (vd: make entity example/model_user.dart)
+entity:
+	dart run ../core_riverpod/bin/generate_entity.dart $(ENTITY_ARGS)
